@@ -71,8 +71,32 @@ consequences of being opted in without realizing it (the entry is public).
 
 ## Comment 5 — Sort order
 **My position:**
+I'm implementing date-added order (most recent first), matching the
+maintainer's suggestion.
 **Reasoning:**
+Date-added order is the most intuitive for a watchlist because it reflects 
+the user's recent interests and recommendations. When users add films to 
+their watchlist, they are often doing so based on what they've recently 
+discovered or are currently interested in, rather than an alphabetical 
+or other arbitrary order. This allows users to quickly access the films 
+they are most likely to want to watch next, aligning with the dynamic 
+and evolving nature of a watchlist compared to a static film catalog 
+or an already-watched collection.
 **Engagement with reviewer's point:**
+I agree with the maintainer's reasoning that sorting by date-added is more 
+user-friendly for a watchlist because it prioritizes the most recently 
+added films, which are likely to be of immediate interest to the user. 
+This is particularly relevant for a watchlist, as it serves as a dynamic 
+list of films the user intends to watch in the near future, rather than a 
+static collection of previously watched films or a browsable catalog.
+I considered the alphabetical alternative, which could be useful for very 
+long lists or for users wanting to check if a specific title has already 
+been added. However, I decided that date-added order still wins because 
+it better reflects the user's current interests and viewing intentions, 
+and the need to check for duplicates can be addressed through other 
+means (e.g., search functionality as a future feature). This also brings 
+`get_watchlist()` in line with `get_collection()`, which already sorts 
+by `date_added.desc()`, ensuring consistency across the app's features.
 
 ## Comment 6 — Rebase
 **What conflicted:**
