@@ -187,4 +187,43 @@ confirming a new entry defaults to `public=False` when the argument is
 omitted, and correctly stores `public=True` when explicitly passed.
 
 ## PR Description
-<!-- Written at the end -->
+### What this adds
+
+Adds a watchlist feature to CineLog, letting users save films they want
+to watch (as opposed to the Collection feature, which tracks films
+they've already watched). Includes a new `WatchlistEntry` model, service
+functions (`add_to_watchlist`, `remove_from_watchlist`, `get_watchlist`),
+and REST endpoints (`GET /watchlist/<user_id>`,
+`POST /watchlist/<user_id>/add`, `DELETE /watchlist/<user_id>/remove`).
+
+### Design decisions
+
+- **Default visibility:** Watchlist entries default to `public=False`
+  (private). CineLog currently has no feed, friend list, or way to browse
+  other users' watchlists, so a public default wouldn't deliver on the
+  app's "community" value today — it would just expose users' viewing
+  habits with no corresponding benefit. Visibility can be set explicitly
+  via the `public` field on `POST /watchlist/<user_id>/add`.
+- **Sort order:** `get_watchlist()` returns entries sorted by date added,
+  most recent first (matching `get_collection()`'s existing behavior),
+  rather than alphabetically. A watchlist reflects current interest —
+  users want to see what they recently added, not scan an alphabetized
+  list.
+
+### How to test manually
+
+1. Start the app: `python app.py`
+2. Create a user and a film (via existing endpoints or directly in a
+   Python shell using the models).
+3. `POST /watchlist/<user_id>/add` with body `{"film_id": "<uuid>"}` —
+   confirm a 201 response and that the entry defaults to `public: false`.
+4. `POST /watchlist/<user_id>/add` again with the same `film_id` — confirm
+   it returns an error rather than creating a duplicate.
+5. Add a second film with `{"film_id": "<uuid2>", "public": true}` —
+   confirm the response shows `public: true`.
+6. `GET /watchlist/<user_id>` — confirm the second (public, more recently
+   added) film appears before the first.
+7. `DELETE /watchlist/<user_id>/remove` with body `{"film_id": "<uuid>"}` —
+   confirm a 200 response, and that `GET /watchlist/<user_id>` no longer
+   shows that film.
+8. Run `pytest tests/ -v` — confirm all 9 tests pass.
