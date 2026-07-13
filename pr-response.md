@@ -168,5 +168,19 @@ it had never been caught. Fixed by adding
 `watchlist_entries = db.relationship("WatchlistEntry", backref="film", lazy=True)`
 to the `Film` model in `models.py`.
 
+## Stretch — Visibility Toggle Endpoint
+**What I did:** Added a `public` parameter (default `False`) to
+`add_to_watchlist(user_id, film_id, public=False)` in
+`services/watchlist_service.py`, so callers can explicitly set visibility
+per entry instead of always relying on the model column default. Updated
+`POST /watchlist/<user_id>/add` in `routes/watchlist/watchlist.py` to
+read an optional `"public"` field from the request body
+(`data.get("public", False)`), defaulting to private if omitted,
+consistent with the Comment 4 decision.
+
+**How a caller uses it:** `POST /watchlist/<user_id>/add` with body
+`{ "film_id": "<uuid>" }` creates a private entry (the default). Sending
+`{ "film_id": "<uuid>", "public": true }` creates a public entry instead.
+
 ## PR Description
 <!-- Written at the end -->
