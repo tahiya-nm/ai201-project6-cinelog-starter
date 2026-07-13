@@ -132,5 +132,41 @@ that `Film.id` is a UUID.
 shows a linear history with no merge commits. Ran `pytest tests/ -v`
 after the rebase and after each cleanup fix — all 5 tests pass throughout.
 
+## Stretch — remove_from_watchlist()
+**What I did:** Added `remove_from_watchlist(user_id, film_id)` to
+`services/watchlist_service.py`, following the same query-then-raise
+pattern as `remove_from_collection()`. Raises a new `NotInWatchlistError`
+if the entry doesn't exist, otherwise deletes it and returns `True`.
+Added a corresponding `DELETE /watchlist/<user_id>/remove` route in
+`routes/watchlist/watchlist.py`, matching the existing `/add` route's
+request/response shape.
+
+**Tests:** Added two tests — one confirming a successful removal actually
+deletes the `WatchlistEntry` row, and one confirming `NotInWatchlistError`
+is raised when trying to remove a film that was never added.
+
+## Stretch — Second Test
+**What I did:** Added `test_get_watchlist_returns_newest_first` to
+`tests/test_watchlist.py`, modeled on
+`test_get_collection_returns_newest_first` in `test_collection.py`. It
+creates two `WatchlistEntry` rows for the same user with different
+`date_added` timestamps and asserts that `get_watchlist()` returns the
+more recently added film first.
+
+**Why this case:** Of the six review comments, Comment 5's sort-order fix
+was the only change with zero test coverage — every other comment's fix
+had a corresponding test already (Comment 3 got its own dedicated test,
+and the rename/dedup changes are implicitly exercised by the existing
+tests). This closed that gap.
+
+**Bonus finding:** Writing this test surfaced a real, previously-unnoticed
+bug: `Film` only had a `db.relationship` backref for `CollectionEntry`,
+not for `WatchlistEntry`. This meant `entry.film` inside `get_watchlist()`
+raised an `AttributeError` any time the watchlist was actually populated
+and read back — but no existing test happened to exercise that path, so
+it had never been caught. Fixed by adding
+`watchlist_entries = db.relationship("WatchlistEntry", backref="film", lazy=True)`
+to the `Film` model in `models.py`.
+
 ## PR Description
 <!-- Written at the end -->
