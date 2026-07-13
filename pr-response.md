@@ -182,5 +182,9 @@ consistent with the Comment 4 decision.
 `{ "film_id": "<uuid>" }` creates a private entry (the default). Sending
 `{ "film_id": "<uuid>", "public": true }` creates a public entry instead.
 
+**Test:** Added `test_add_to_watchlist_public_default_and_override`,
+confirming a new entry defaults to `public=False` when the argument is
+omitted, and correctly stores `public=True` when explicitly passed.
+
 ## PR Description
 <!-- Written at the end -->
