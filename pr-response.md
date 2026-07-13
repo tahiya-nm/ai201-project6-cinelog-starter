@@ -1,7 +1,53 @@
 # PR Response Doc — CineLog Watchlist Feature
 
 ## AI Usage
-<!-- Fill in at the end -->
+
+I used Claude throughout this project as a guide and checker, not as a
+code generator for the parts that mattered most.
+
+- **Codebase orientation (Milestone 1):** Had Claude read through
+  `models.py`, `services/collection_service.py`, and
+  `tests/test_collection.py` on `main`, plus the pre-refactor state of
+  `models.py`, `watchlist_service.py`, and the watchlist route file on
+  `feature/watchlist`, to confirm the exact naming conventions, error
+  patterns, and fixture structures before I wrote any code.
+
+- **Reviewing my own code before committing:** For each of the six
+  comments, I wrote the fix myself first, then had Claude check it
+  against the `add_to_collection()` / `remove_from_collection()`
+  patterns before I committed — this caught a couple of real issues,
+  including a stale docstring after the UUID rebase and, more
+  significantly, a genuine bug: `Film` had no `db.relationship` backref
+  for `WatchlistEntry`, which meant `get_watchlist()` would have thrown
+  an `AttributeError` the first time anyone actually populated and read
+  back a watchlist. That surfaced when I wrote my own sort-order test
+  (the second-test stretch feature), not from Claude reviewing code in
+  the abstract.
+
+- **Stress-testing Comments 4 and 5:** For the default-visibility
+  decision, my first instinct was "public makes sense, it's a community
+  app." Claude pushed back by asking what mechanism in the actual
+  codebase would let anyone see a public watchlist entry today — there
+  isn't one (no feed, no friend list, no browsable profiles) — which
+  changed my position to private-by-default, since a public default
+  wasn't delivering any real benefit yet while still carrying a real
+  privacy cost. For the sort-order comment, I already agreed with the
+  maintainer's date-added suggestion, so Claude's main role there was
+  making sure my written response actually engaged with the maintainer's
+  stated reasoning rather than just restating my own preference in
+  parallel.
+
+- **Git mechanics:** Used Claude to walk through the rebase conflict
+  resolution (the `.gitignore` and `models.py` conflicts) and the
+  interactive rebase for cleaning up commit history, including recovering
+  from a bad rebase plan (an early attempt to reorder commits caused a
+  new conflict, so we aborted and used a safer plan that only reworded/
+  fixed up two commits without reordering anything else).
+
+I did not have Claude write the Comment 4 or Comment 5 responses
+directly — both are in my own words, refined after Claude asked
+clarifying questions about CineLog's actual current features rather than
+generating an argument for me.
 
 ## Comment 1 — Rename
 **What I did:** Renamed `save_to_watchlist()` to `add_to_watchlist()` in
@@ -43,7 +89,7 @@ test file, matching the in-memory SQLite setup pattern exactly.
 `Film.id` is still an `Integer` column on this branch pre-rebase — unlike
 `test_collection.py`'s UUID-string fake ID). Ran
 `pytest tests/test_watchlist.py -v` to confirm it passes, then
-`pytest tests/ -v` to confirm the full suite (5 tests) passes with no
+`pytest tests/ -v` to confirm the full suite passes with no
 regressions.
 
 ## Comment 4 — Default visibility
