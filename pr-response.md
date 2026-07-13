@@ -275,5 +275,13 @@ and REST endpoints (`GET /watchlist/<user_id>`,
 8. Run `pytest tests/ -v` — confirm all 9 tests pass.
 
 
-## git log --oneline - Screenshot
-<img width="883" height="367" alt="Screenshot 2026-07-12 at 8 30 54 PM" src="https://github.com/user-attachments/assets/5ffdfd4f-27d3-4a08-a5ea-63a7491b796f" />
+## Commit History - Screenshot
+<img width="883" height="367" alt="Screenshot of commit history" src="image.png" />
+
+**Note:** this log is scoped to `origin/main..HEAD` — my branch's own
+commits only. A plain `git log --oneline` also shows
+`bbe206c Merge pull request #2 from ascherj/chore/add-gitignore`, but
+that merge commit is part of upstream `main`'s pre-existing history
+(the maintainer's own `.gitignore` PR merge from before this branch was
+created), not something introduced by this branch. My branch itself —
+compared against `main` — is fully linear, with no merge commits.
