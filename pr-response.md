@@ -48,8 +48,26 @@ regressions.
 
 ## Comment 4 — Default visibility
 **My position:**
+I would set `public` to default to `False` (private-by-default), with 
+users able to opt in to making a watchlist entry public.
 **Reasoning:**
+By defaulting to private, we avoid the risk of users accidentally sharing 
+their watchlist entries with the public. This aligns with the principle of 
+"safe by default," ensuring that users who are not actively thinking about 
+privacy settings do not inadvertently expose their viewing habits. Right 
+now, CineLog doesn't have a mechanism that would allow anyone to see a 
+public watchlist entry, so defaulting to public today doesn't deliver on 
+the "community" value the app describes yet — the default currently has no 
+functional effect either way, so there's no cost to choosing the safer 
+option now, and it's easy to flip once real community features exist.
 **Tradeoff acknowledged:**
+The cost of private-by-default is that users have to remember to opt in if 
+they want to share their watchlist entries publicly. This introduces a small
+amount of friction for users who want to share, but it is a conscious action
+users must take, which is preferable to the risk of unintentional public 
+sharing. I think this tradeoff is acceptable because the consequences of 
+forgetting to opt in (the entry remains private) are less severe than the 
+consequences of being opted in without realizing it (the entry is public).
 
 ## Comment 5 — Sort order
 **My position:**
