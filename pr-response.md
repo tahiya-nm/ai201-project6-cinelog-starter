@@ -273,3 +273,7 @@ and REST endpoints (`GET /watchlist/<user_id>`,
    confirm a 200 response, and that `GET /watchlist/<user_id>` no longer
    shows that film.
 8. Run `pytest tests/ -v` — confirm all 9 tests pass.
+
+
+## git log --oneline - Screenshot
+<img width="883" height="367" alt="Screenshot 2026-07-12 at 8 30 54 PM" src="https://github.com/user-attachments/assets/5ffdfd4f-27d3-4a08-a5ea-63a7491b796f" />
