@@ -115,3 +115,24 @@ def test_get_watchlist_returns_newest_first(app, sample_user):
 
         assert titles[0] == "Blade Runner"
         assert titles[1] == "Alien"
+
+    
+def test_add_to_watchlist_public_default_and_override(app, sample_user, sample_film):
+    """
+    add_to_watchlist() should default new entries to public=False,
+    and respect an explicit public=True override.
+    """
+    with app.app_context():
+        # Default case — no public argument passed
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film)
+        assert entry.public is False
+
+        # Override case — a second film, explicitly marked public
+        second_film = Film(title="The Grand Budapest Hotel", year=2014, genre="Comedy")
+        db.session.add(second_film)
+        db.session.commit()
+
+        public_entry = add_to_watchlist(
+            user_id=sample_user, film_id=second_film.id, public=True
+        )
+        assert public_entry.public is True
