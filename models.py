@@ -38,6 +38,7 @@ class Film(db.Model):
     average_rating = db.Column(db.Float, default=0.0)
 
     collection_entries = db.relationship("CollectionEntry", backref="film", lazy=True)
+    watchlist_entries = db.relationship("WatchlistEntry", backref="film", lazy=True)
 
     def to_dict(self):
         return {
@@ -72,7 +73,7 @@ class CollectionEntry(db.Model):
             "rating": self.rating,
         }
     
-    
+
 class WatchlistEntry(db.Model):
     """Represents a film a user wants to watch (saved for later)."""
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
