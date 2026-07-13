@@ -3,6 +3,7 @@ tests/test_watchlist.py — CineLog
 
 Tests for the watchlist service.
 """
+from datetime import datetime, timezone, timedelta
 
 import pytest
 
@@ -10,9 +11,11 @@ from app import create_app, db
 from models import Film, User, WatchlistEntry
 from services.watchlist_service import (
     add_to_watchlist,
+    get_watchlist,
     remove_from_watchlist,
     AlreadyInWatchlistError,
     NotInWatchlistError,
+    
 )
 from services.collection_service import FilmNotFoundError
 
@@ -73,7 +76,6 @@ def test_remove_from_watchlist_removes_entry(app, sample_user, sample_film):
         add_to_watchlist(user_id=sample_user, film_id=sample_film)
 
         # Now remove it
-        from services.watchlist_service import remove_from_watchlist
         remove_from_watchlist(user_id=sample_user, film_id=sample_film)
 
         # Verify it's gone
@@ -91,3 +93,25 @@ def test_remove_from_watchlist_not_in_watchlist_raises(app, sample_user, sample_
     with app.app_context():
         with pytest.raises(NotInWatchlistError):
             remove_from_watchlist(user_id=sample_user, film_id=sample_film)
+
+
+def test_get_watchlist_returns_newest_first(app, sample_user):
+    with app.app_context():
+        film_a = Film(title="Alien", year=1979, genre="Horror")
+        film_b = Film(title="Blade Runner", year=1982, genre="Sci-Fi")
+        db.session.add_all([film_a, film_b])
+        db.session.commit()
+
+        earlier = datetime.now(timezone.utc) - timedelta(days=5)
+        later = datetime.now(timezone.utc)
+
+        entry_a = WatchlistEntry(user_id=sample_user, film_id=film_a.id, date_added=earlier)
+        entry_b = WatchlistEntry(user_id=sample_user, film_id=film_b.id, date_added=later)
+        db.session.add_all([entry_a, entry_b])
+        db.session.commit()
+
+        watchlist = get_watchlist(sample_user)
+        titles = [f["title"] for f in watchlist]
+
+        assert titles[0] == "Blade Runner"
+        assert titles[1] == "Alien"
