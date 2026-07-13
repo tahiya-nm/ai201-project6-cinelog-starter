@@ -17,13 +17,16 @@ class NotInWatchlistError(Exception):
     """Raised when trying to remove a film that isn't in the watchlist."""
     pass
 
-def add_to_watchlist(user_id, film_id):
+def add_to_watchlist(user_id, film_id, public=False):
     """
     Save a film to a user's watchlist.
 
     Args:
         user_id (str): UUID of the user.
         film_id (str): UUID of the film.
+        public (bool, optional): Whether this entry should be visible to
+            others. Defaults to False (private), per the project's
+            visibility decision (see pr-response.md, Comment 4).
 
     Returns:
         WatchlistEntry: The newly created entry.
@@ -45,7 +48,7 @@ def add_to_watchlist(user_id, film_id):
             f"Film '{film_id}' is already in this user's watchlist"
         )
 
-    entry = WatchlistEntry(user_id=user_id, film_id=film_id)
+    entry = WatchlistEntry(user_id=user_id, film_id=film_id, public=public)
     db.session.add(entry)
     db.session.commit()
     return entry
