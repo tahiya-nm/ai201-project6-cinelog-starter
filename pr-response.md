@@ -50,6 +50,7 @@ regressions.
 **My position:**
 I would set `public` to default to `False` (private-by-default), with 
 users able to opt in to making a watchlist entry public.
+
 **Reasoning:**
 By defaulting to private, we avoid the risk of users accidentally sharing 
 their watchlist entries with the public. This aligns with the principle of 
@@ -60,6 +61,7 @@ public watchlist entry, so defaulting to public today doesn't deliver on
 the "community" value the app describes yet — the default currently has no 
 functional effect either way, so there's no cost to choosing the safer 
 option now, and it's easy to flip once real community features exist.
+
 **Tradeoff acknowledged:**
 The cost of private-by-default is that users have to remember to opt in if 
 they want to share their watchlist entries publicly. This introduces a small
@@ -73,6 +75,7 @@ consequences of being opted in without realizing it (the entry is public).
 **My position:**
 I'm implementing date-added order (most recent first), matching the
 maintainer's suggestion.
+
 **Reasoning:**
 Date-added order is the most intuitive for a watchlist because it reflects 
 the user's recent interests and recommendations. When users add films to 
@@ -82,6 +85,7 @@ or other arbitrary order. This allows users to quickly access the films
 they are most likely to want to watch next, aligning with the dynamic 
 and evolving nature of a watchlist compared to a static film catalog 
 or an already-watched collection.
+
 **Engagement with reviewer's point:**
 I agree with the maintainer's reasoning that sorting by date-added is more 
 user-friendly for a watchlist because it prioritizes the most recently 
@@ -99,9 +103,34 @@ means (e.g., search functionality as a future feature). This also brings
 by `date_added.desc()`, ensuring consistency across the app's features.
 
 ## Comment 6 — Rebase
-**What conflicted:**
-**How I resolved it:**
-**How I verified no conflict remains:**
+**What conflicted:** Two conflicts during `git rebase origin/main`:
+1. `.gitignore` — both `main` and my branch independently added one;
+   resolved by keeping the union of both (`main` had `.pytest_cache/`
+   that mine didn't).
+2. `models.py` — `main`'s refactor commit changed `Film.id` and
+   `CollectionEntry.film_id` from `Integer` to `String(36)` (UUID), and
+   had no `WatchlistEntry` class at all, while my branch had
+   `WatchlistEntry` still referencing `film_id` as `Integer`.
+
+**How I resolved it:** Kept `main`'s UUID-based `User`, `Film`, and
+`CollectionEntry` models untouched, and added my `WatchlistEntry` class
+back in with `film_id` changed from `db.Column(db.Integer, ...)` to
+`db.Column(db.String(36), ...)` to match the new `Film.id` type. After
+the rebase completed with no further conflicts, I found two leftover
+stale references to the old integer ID scheme that the rebase didn't
+touch (since git found no textual conflict there): a docstring in
+`add_to_watchlist()` still said `film_id (int)`, and the route docstring
+in `routes/watchlist/watchlist.py` still showed `"film_id": <int>` in
+its example request body. Updated both to reflect UUID strings. Also
+updated `tests/test_watchlist.py`'s fake `film_id` from an integer
+(`999999`) to a UUID-formatted string
+(`"00000000-0000-0000-0000-000000000000"`), matching
+`test_collection.py`'s pattern and actually testing the right thing now
+that `Film.id` is a UUID.
+
+**How I verified no conflict remains:** `git log --oneline origin/main..HEAD`
+shows a linear history with no merge commits. Ran `pytest tests/ -v`
+after the rebase and after each cleanup fix — all 5 tests pass throughout.
 
 ## PR Description
 <!-- Written at the end -->
