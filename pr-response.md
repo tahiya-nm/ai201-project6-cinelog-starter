@@ -16,12 +16,35 @@ same grep and confirmed zero matches remained. Also ran `pytest tests/ -v`
 to confirm the app still imports and runs cleanly with no breakage.
 
 ## Comment 2 — Deduplication
-**What I did:**
-**How I verified:**
+**What I did:** Added a duplicate check to `add_to_watchlist()` in
+`services/watchlist_service.py`. After the existing film-existence check,
+I query for an existing `WatchlistEntry` matching `user_id` + `film_id`.
+If one is found, I raise a new `AlreadyInWatchlistError` (defined in the
+same file, following the same one-line `Exception` subclass style as
+`FilmNotFoundError` and `AlreadyInCollectionError` in
+`collection_service.py`) instead of silently inserting a duplicate row.
+
+**How I verified:** Modeled this directly on `add_to_collection()` in
+`services/collection_service.py`, which does the same query-then-raise
+check (query by `user_id`+`film_id`, raise a custom error if found) rather
+than relying on a DB-level constraint to throw. Ran `pytest tests/ -v` to
+confirm no regressions in the existing collection tests (a dedicated
+watchlist test for this case comes next, in Comment 3).
 
 ## Comment 3 — Missing test
-**What I did:**
-**How I verified:**
+**What I did:** Created `tests/test_watchlist.py` with
+`test_add_to_watchlist_nonexistent_film_raises`, modeled directly on
+`test_add_to_collection_nonexistent_film_raises` in `test_collection.py`.
+Since `test_collection.py`'s `app` and `sample_user` fixtures aren't in a
+shared `conftest.py`, I redefined the same fixtures locally in the new
+test file, matching the in-memory SQLite setup pattern exactly.
+
+**How I verified:** Used a fake `film_id` of `999999` (an integer, since
+`Film.id` is still an `Integer` column on this branch pre-rebase — unlike
+`test_collection.py`'s UUID-string fake ID). Ran
+`pytest tests/test_watchlist.py -v` to confirm it passes, then
+`pytest tests/ -v` to confirm the full suite (5 tests) passes with no
+regressions.
 
 ## Comment 4 — Default visibility
 **My position:**
